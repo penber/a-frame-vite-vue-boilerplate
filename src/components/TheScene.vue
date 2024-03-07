@@ -1,24 +1,46 @@
-<script setup>
+<script>
   import { ref } from 'vue';
-
   import TheCameraRig from './TheCameraRig.vue';
-  import TheMainRoom from './TheMainRoom.vue';
-  import TheLifeCubeRoom from './TheLifeCubeRoom.vue';
-  import ThePhysicRoom from './ThePhysicRoom.vue';
+  import TheOcean from './TheOcean.vue';
+  import DinoIsland from './DinoIsland.vue';
+  import Panneau from './PanneauTxt.vue';
+  import Dinosaures from './DinoSaures.vue';
+  import GameManager from './GameManager.vue';
 
-  import '../aframe/simple-grab.js';
-
-  defineProps({
-    scale: Number,
-    overlaySelector: String,
-  });
-
-  const allAssetsLoaded = ref(false);
+  export default {
+    components: {
+      TheCameraRig,
+      TheOcean,
+      DinoIsland,
+      Panneau,
+      Dinosaures,
+      GameManager
+    },
+    props: {
+      scale: Number,
+      overlaySelector: String,
+    },
+    data() {
+      return {
+        allAssetsLoaded: false,
+        panneauMessage: '', // Message à afficher sur le panneau
+        positionMessage: '0 1.5 -3', // Position du panneau
+      };
+    },
+    methods: {
+      checkDinosaur(dinosaurName) {
+        this.$refs.gameManager.checkMission(dinosaurName);
+      },
+      updatePanneauMessage(newMessage) {
+      this.panneauMessage = newMessage;
+    }
+    }
+  };
 </script>
-
 <template>
   <a-scene
-    background="color: black;"
+  stats
+    background="color: white;"
     :webxr="`
       requiredFeatures: local-floor;
       referenceSpaceType: local-floor;
@@ -26,43 +48,58 @@
       overlayElement: ${overlaySelector};
     `"
     xr-mode-ui="XRMode: xr"
-    physx="
+    aphysx="
       autoLoad: true;
       delay: 1000;
       useDefaultScene: false;
       wasmUrl: lib/physx.release.wasm;
     "
-    simple-grab
+    environment="preset: forest; 
+    fog:0.2;
+    seed:40;
+    ground:flat;
+    groundTexture: walkernoise;
+    dressing: trees;
+    dressingAmount: 100;
+    dressingScale: 2;
+    dressingUniformScale: false;
+    playArea: 2;
+    scale : 2 2 2;
+    "
   >
 
     <a-assets @loaded="allAssetsLoaded = true">
-      <!--
-        Title: VR Gallery
-        Model source: https://sketchfab.com/3d-models/vr-gallery-1ac32ed62fdf424498acc146fad31f7e
-        Model author: https://sketchfab.com/mvrc.art (Maxim Mavrichev)
-        Model license: CC BY 4.0 ( https://creativecommons.org/licenses/by/4.0/ )
-      -->
+
       <a-asset-item id="room" src="assets/vr_gallery.glb"></a-asset-item>
-      <!--
-        Title: 3D Gallery for VR projects
-        Model source: https://sketchfab.com/3d-models/3d-gallery-for-vr-projects-68f77ed8558c4bd59e0a13e2cc9d1fd1
-        Model author: https://sketchfab.com/tekuto1s (tekuto1s)
-        Model license: CC BY 4.0 ( https://creativecommons.org/licenses/by/4.0/ )
-      -->
-      <a-asset-item id="physic-room" src="assets/3d_gallery_for_vr_projects.glb"></a-asset-item>
-      <a-asset-item id="sound-1" response-type="arraybuffer" src="assets/sound1.mp3" preload="auto"></a-asset-item>
-      <img id="room-physic-out-texture" :src="`assets/main-room-from-physic-room.png`">
-      <img id="room-gol-out-texture" :src="`assets/main-room-from-gol-room.png`">
-      <img id="room-physic-texture" :src="`assets/physicRoom.png`">
+      <!-- dinausares -->
+      <a-asset-item id="velo-ceraptor" src="assets/raptor_blue.glb"></a-asset-item>
+      <a-asset-item id="tyranno-saurus" src="assets/tyranno_walk.glb"></a-asset-item>
+      <a-asset-item id="pteractal-dino" src="assets/flying_pteradactal_dinosaur.glb"></a-asset-item>
+      <a-asset-item id="triceratops-dino" src="assets/triceratops.glb"></a-asset-item>
+      <a-asset-item id="paluxysaurus-dino" src="assets/paluxysaurus.glb"></a-asset-item>
+
+
+      <a-asset-item id="lowpoly-sniper" src="assets/low_poly_sniper.glb"></a-asset-item>
+      
+      
+      <!-- Décoration -->
+      <a-asset-item id="mountain-newbie" src="assets/low_poly_mountain.glb"></a-asset-item>
+      
+      <!-- <a-asset-item id="sun-meteorite" src="assets/sun-meteorite.glb"></a-asset-item> -->
+      <a-asset-item id="fire-ball" src="assets/fire_ball.glb"></a-asset-item>
+   
     </a-assets>
 
     <template v-if="allAssetsLoaded">
-      <TheMainRoom :scale="scale" />
-      <TheLifeCubeRoom />
-      <ThePhysicRoom />
+    
+   <DinoIsland />
+   <!-- <Panneau textValue="Bienvenue dans la foret prehistorique!" textColor="white" textPosition="0 1.5 -3"></Panneau> -->
+      <Dinosaures @dinosaur-clicked="checkDinosaur"/>
+      <GameManager ref="gameManager" />
+
     </template>
 
-    <TheCameraRig />
+    <TheCameraRig />  
 
   </a-scene>
 </template>

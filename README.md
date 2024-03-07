@@ -16,17 +16,16 @@
 
 ### Libs and components
 
-- [aframe-extras](https://github.com/c-frame/aframe-extras) (MIT License)
+- [aframe-extras controls and animation-mixer](https://github.com/c-frame/aframe-extras) (MIT License)
 - [aframe physx](https://github.com/c-frame/physx) (MIT License)
 - [aframe-blink-controls](https://github.com/jure/aframe-blink-controls) (MIT License)
-- [aframe-multi-camera](https://github.com/diarmidmackenzie/aframe-multi-camera/) (MIT License)
 - [simple-navmesh-constraint](https://github.com/AdaRoseCannon/aframe-xr-boilerplate) (MIT Licence)
 
 ### Movement modes support
 
 - **Desktop** – Keyboard for move (_WASD_ or Arrows keys) + Mouse for look control (Drag and drop)
 - **Mobile** – 1x Finger touch to go forward + 2x Fingers touch to go backward + Gaze cursor for click
-- **VR/AR** – walk + Teleport (Grip for grab and laser for click) + Gaze cursor for click in AR
+- **VR Headset** – AR/VR walk + Teleport (Grip for grab and laser for click) + Gaze cursor for click
 
 ### 3D models
 
@@ -75,7 +74,7 @@ npm run dev-expose
 
 3. In your VR headset, browse to the local development adress `[ip]:[port]`.
 
-> [!NOTE]
+> [!NOTE]  
 > The certificate is self-signed, so you will probably have to confirm access to the resource in your browser.
 
 ---
