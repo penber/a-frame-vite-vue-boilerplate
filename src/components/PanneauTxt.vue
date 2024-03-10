@@ -22,11 +22,11 @@ export default {
     },
     boxSize: {
       type: String,
-      default: '2 1 0.01' // Largeur, hauteur, profondeur
+      default: '2 1 0.01' 
     },
     boxPosition: {
       type: String,
-      default: '-0.1 1.5 -3.15' // Légèrement devant le texte pour éviter les problèmes de z-fighting
+      default: '-0.1 1.5 -3.15' 
     }
   },
   methods: {
@@ -42,11 +42,8 @@ export default {
 <template>
 
  <a-entity>
-    <!-- Box comme fond pour le texte -->
     <a-box clickable @click="hidepannel" :color="boxColor" :position="boxPosition" :width="boxSize.split(' ')[0]" :height="boxSize.split(' ')[1]" :depth="boxSize.split(' ')[2]"></a-box>
-    
-    <!-- Texte du panneau -->
-    <a-entity :text="'value: ' + textValue + '; color: ' + textColor" :position="textPosition" ></a-entity>
+    <a-entity :text="'value: ' + textValue + '; color: ' + textColor + '; width: 1.3'" :position="textPosition"></a-entity>
   </a-entity>
   
   </template>

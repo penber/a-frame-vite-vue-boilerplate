@@ -19,12 +19,12 @@
 </script>
 
 <template>
-  <div>
+  <!-- <div>
     <dl id="debug">
       <dt>scale: {{ value }}</dt>
       <input v-model.number="value" type="range" min="0.2" max="1" step="0.05">
     </dl>
-  </div>
+  </div> -->
 </template>
 
 <style scoped>

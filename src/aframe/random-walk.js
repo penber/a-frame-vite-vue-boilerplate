@@ -1,14 +1,14 @@
 AFRAME.registerComponent('random-walk', {
   schema: {
-    speed: {type: 'number', default: 1}, // Vitesse de déplacement
-    minInterval: {type: 'number', default: 1000}, // Intervalle minimum entre les déplacements
-    maxInterval: {type: 'number', default: 15000}, // Intervalle maximum entre les déplacements
-    rotationSpeed: {type: 'number', default: 0.05}, // Vitesse de rotation
-    maxTurnAngle: {type: 'number', default: 90}, // Maximum turn angle in degrees
-    moveDistance: {type: 'number', default: 15} // Distance à parcourir à chaque mouvement
+    speed: {type: 'number', default: 1},
+    minInterval: {type: 'number', default: 1000},
+    maxInterval: {type: 'number', default: 11000},
+    rotationSpeed: {type: 'number', default: 0.05},
+    maxTurnAngle: {type: 'number', default: 100},
+    moveDistance: {type: 'number', default: 15}
   },
   init: function () {
-    this.direction = 0; // Direction initiale en degrés
+    this.direction = 0;
     this.moveRandomly();
   },
   moveRandomly: function () {
@@ -16,37 +16,36 @@ AFRAME.registerComponent('random-walk', {
     const data = this.data;
 
     setInterval(() => {
-      // Choisissez une nouvelle direction dans l'intervalle [-maxTurnAngle, maxTurnAngle] par rapport à l'actuelle
-      const turnAngle = THREE.MathUtils.degToRad((Math.random() - 0.5) * 2 * data.maxTurnAngle);
-      this.direction += turnAngle; // Ajouter le virage à la direction actuelle
+      const smallTurnProbability = 0.7; 
+      const turnAdjustment = Math.random() < smallTurnProbability ? 0.5 : 2; 
+      const turnAngle = THREE.MathUtils.degToRad((Math.random() - 0.5) * 2 * data.maxTurnAngle * turnAdjustment);
+      this.direction += turnAngle;
 
-      // Calculer la nouvelle position en avançant de moveDistance dans la nouvelle direction
       const dx = Math.sin(this.direction) * data.moveDistance;
       const dz = Math.cos(this.direction) * data.moveDistance;
       const newPosition = {
         x: el.object3D.position.x + dx,
-        y: 0, // Y constant
+        y: el.object3D.position.y,
         z: el.object3D.position.z + dz
       };
 
-      // Distance parcourue est data.moveDistance, donc pas besoin de recalculer
-      const dur = data.moveDistance / data.speed * 1000; // Conversion en millisecondes
+      const dur = data.moveDistance / data.speed * 1000;
 
-      // Mise à jour de la position
+      const easingFunction = 'easeInOutQuad'; 
+
       el.setAttribute('animation__position', {
         property: 'position',
         to: `${newPosition.x} ${newPosition.y} ${newPosition.z}`,
         dur: dur,
-        easing: 'linear'
+        easing: easingFunction
       });
 
-      // Mise à jour de la rotation
       const rotationY = THREE.MathUtils.radToDeg(this.direction);
       el.setAttribute('animation__rotation', {
         property: 'rotation',
         to: `0 ${rotationY} 0`,
         dur: dur * data.rotationSpeed,
-        easing: 'linear'
+        easing: easingFunction
       });
 
     }, Math.random() * (data.maxInterval - data.minInterval) + data.minInterval);

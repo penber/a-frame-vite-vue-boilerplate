@@ -34,13 +34,25 @@
       updatePanneauMessage(newMessage) {
       this.panneauMessage = newMessage;
     }
+    },
+    mounted() {
+
+      setTimeout(() => {
+        const backgroundSound = document.querySelector('#bakground-sound');
+        if (backgroundSound) {
+      backgroundSound.addEventListener('sound-loaded', () => {
+        backgroundSound.setAttribute('sound', 'volume', 0.3);
+      });
     }
+      }, 3000);
+     
+    
+    },
   };
 </script>
 <template>
   <a-scene
-  stats
-    background="color: white;"
+    background="color: black;"
     :webxr="`
       requiredFeatures: local-floor;
       referenceSpaceType: local-floor;
@@ -55,16 +67,16 @@
       wasmUrl: lib/physx.release.wasm;
     "
     environment="preset: forest; 
-    fog:0.2;
+    fog:0.75;
     seed:40;
     ground:flat;
     groundTexture: walkernoise;
+    groudColor: #3f3f3f;
     dressing: trees;
-    dressingAmount: 100;
+    dressingAmount: 60;
     dressingScale: 2;
     dressingUniformScale: false;
-    playArea: 2;
-    scale : 2 2 2;
+    horizonColor: darkorange;
     "
   >
 
@@ -84,16 +96,22 @@
       
       <!-- Décoration -->
       <a-asset-item id="mountain-newbie" src="assets/low_poly_mountain.glb"></a-asset-item>
-      
-      <!-- <a-asset-item id="sun-meteorite" src="assets/sun-meteorite.glb"></a-asset-item> -->
+      <a-asset-item id="tree-clouds" src="assets/low_poly_landscape.glb"></a-asset-item>
+      <a-asset-item id="fire-ball" src="assets/fire.glb"></a-asset-item>
       <a-asset-item id="fire-ball" src="assets/fire_ball.glb"></a-asset-item>
-   
+      <a-asset-item id="tree-island" src="assets/tree.glb"></a-asset-item>
     </a-assets>
 
     <template v-if="allAssetsLoaded">
-    
+
+      <a-sound id="sniper-sound" src="url(assets/sounds/sniper.mp3)" autoplay="false" on="play-shoot"></a-sound>
+
+      <a-sound id="bakground-sound" src="assets/sounds/JurassicPark-Soundtrack.mp3" autoplay="true" loop="true" volume="0.2"></a-sound>
+      <a-sound id="mission-sound-0" src="assets/sounds/trex-sound.mp3" autoplay="false" loop="false" on="play-sound" volume="1"></a-sound>      <a-sound id="mission-sound-1" src="" autoplay="false" start-events="play-sound"></a-sound>
+      <a-sound id="mission-sound-3" src="assets/sounds/Diplodocus_Sound.mp3" autoplay="false" on="play-sound" volume="1" position="-40 0 17.5"></a-sound>      <a-sound id="mission-sound-1" src="" autoplay="false" start-events="play-sound"></a-sound>
+      <a-sound id="mission-sound-4" src="assets/sounds/triceratops_sound.mp3" autoplay="false" on="play-sound" volume="1"></a-sound>
+      <a-sound id="meteor-impact" src="assets/sounds/Meteor_Impact.mp3" autoplay="false" on="play-sound" volume="1"></a-sound>
    <DinoIsland />
-   <!-- <Panneau textValue="Bienvenue dans la foret prehistorique!" textColor="white" textPosition="0 1.5 -3"></Panneau> -->
       <Dinosaures @dinosaur-clicked="checkDinosaur"/>
       <GameManager ref="gameManager" />
 

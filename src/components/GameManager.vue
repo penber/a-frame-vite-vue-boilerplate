@@ -4,7 +4,8 @@ import "../utils/bind-position.js";
 import "../utils/bind-rotation.js";
 import PanneauQuestion from './PanneauQuestion.vue';
 import "../aframe/meteor-animation.js";
-import { nextTick } from 'vue';
+import "../aframe/animation-mixer.js";
+
 export default {
     name: "GameManager",
     components: {
@@ -15,82 +16,108 @@ export default {
       return {
         currentMissionIndex: 0,
         msgindex: 0,
-        debutMessage: ['Bienvenue dans le jeu de la préhistoire ! ',
-         'Vous avez 3 missions à accomplir pour terminer le jeu.',
-         'Pour chaque mission, vous devrez répondre à une question ou trouver un dinosaure.',
-          'Si vous répondez correctement ou trouvez le bon dinosaure, vous passerez à la mission suivante.',
-          'En cas derreur, la météorite se rapprochera encore plus vite de la Terre.',
-          'Bonne chance !'
-        ],
-        StatusMessage:'Tirer pour commencer.',
+        endgame: false,
+        timeoutRef: null,
+        shouldShakeCamera: false,
+
+        debutMessage: ['Bienvenue dans la prehistoire ! ',
+       'Vous avez 6 missions pour eviter que l\'asteroide ne detruise la Terre.',
+       'Pour chaque mission, vous devrez repondre a une question ou trouver un dinosaure.',
+        'Si vous repondez correctement ou trouvez le bon dinosaure, vous passerez a la mission suivante.',
+        'A chaque erreur, la meteorite se rapprochera encore plus vite de la Terre.',
+        'Bonne chance !'
+      ],
+
+        StatusMessage:'Tirer ici pour commencer.',
+
+        tempsrestant: 8,
+
         boxColor: 'black',
         showPanel: false, 
-        RetourBase : 'Retourné à la base pour réponde à la question.',
+        RetourBase : 'Retour à la base pour reponde à la question.',
         currentQuestion: '',
         currentChoices: [],
         showQuestionPanel: false,
         panelMessage: '', 
         missions: [
-        {
-            description: "Quel dinosaure est un bipède connu pour ses longues griffes et être l’un des plus gros prédateur de l’histoire ?",
-            target: "t-rex",
-            hint: "Cherchez le plus grand prédateur",
-            successMessage: "Bravo ! Vous avez trouvé le T-Rex. Qui est l'un des plus gros dinausaure de l'histoire.",
-            errorMessage: "Oups... Ce n'est pas le bon dinosaure. l'asteroide se rapproche plus vite ! ",
-            isCompleted: false
-          },
-        {
-            type: "question",
-            question: "Quel outil préhistorique était utilisé pour couper la viande ?",
-            choices: ["Bifaces", "Propulseurs", "Harpons"],
-            hint: "C'est l'outil le plus tranchant",
-            correctAnswer: "Bifaces",
-            successMessage: "Exact ! Les bifaces étaient utilisés pour couper la viande.",
-            errorMessage: "Ce n'est pas la bonne réponse. Essayez encore.",
-            isCompleted: false
-          },
-          {
-          type: "question",
-          question: "Quelle peinture préhistorique célèbre trouve-t-on principalement dans la Grotte de Lascaux ?",
-          choices: ["Peintures de chasse", "Portraits de famille", "Scènes maritimes"],
-          hint: "C'est une activité essentielle de la préhistoire",
-          correctAnswer: "Peintures de chasse",
-          successMessage: "Bien joué ! La Grotte de Lascaux est célèbre pour ses peintures de chasse.",
-          errorMessage: "Essayez encore, mais l'asteroide à accéléré !!",
-          isCompleted: false
-        } ,
-        
-          {
-            description: "Quel dinosaure herbivore est connu pour sa grande taille ?",
-            target: "paluxysaurus",
-            hint: "Cherchez le plus grand herbivore",
-            successMessage: "Bravo ! Vous avez trouvé le Brachiosaurus.",
-            errorMessage: "Ce n'est pas le bon. ",
-            isCompleted: false
-          },
-      
-          {
-            description: "Quel dinosaure était un quadrupède herbivore connu pour ses trois cornes et sa collerette ?",
-            target: "triceratops",
-            hint: "Cherchez le dinosaure avec trois cornes",
-            successMessage: "Bravo ! Vous avez trouvé le Triceratops.",
-            errorMessage: "Ce n'est pas le bon dinosaure. Essayez encore.",
-            isCompleted: false
-          },
-          {type: "question",
-          question: "Comment appelle-t-on l'ère géologique des t-rex ?",
-          choices: ["Jurassique", "Crétacé", "Trias"],
-          hint: "C'est l'ère géologique la plus récente",
-          correctAnswer: "Crétacé",
-          successMessage: "Exact ! Les t-rex ont vécu pendant l'ère Crétacé.",
-          errorMessage: "Ce n'est pas la bonne réponse. L'astéroide s'écrase encore plus vite !!!",
-          isCompleted: false}]
+            {
+              description: "Quel dinosaure est un bipede connu pour ses longues griffes et etre l’un des plus gros predateur de l’histoire ?",
+              target: "t-rex",
+              hint: "Cherchez le plus grand predateur",
+              successMessage: "Bravo ! Vous avez trouve le T-Rex. Qui est l'un des plus gros dinosaure de l'histoire.",
+              errorMessage: "Oups... Ce n'est pas le bon dinosaure. l'asteroide se rapproche plus vite ! ",
+              sound: "true",
+              isCompleted: false
+            },
+            {
+              type: "question",
+              question: "Quel outil prehistorique etait utilise pour couper la viande ?",
+              choices: ["Bifaces", "Propulseurs", "Harpons"],
+              hint: "C'est l'outil le plus tranchant",
+              correctAnswer: "Bifaces",
+              successMessage: "Exact ! Les bifaces etaient utilises pour couper la viande.",
+              errorMessage: "Ce n'est pas la bonne reponse. Essayez encore.",
+              isCompleted: false
+            },
+            {
+              type: "question",
+              question: "Quelle peinture prehistorique celebre trouve-t-on principalement dans la Grotte de Lascaux ?",
+              choices: ["Peintures de chasse", "Portraits de famille", "Scenes maritimes"],
+              hint: "C'est une activite essentielle de la prehistoire",
+              correctAnswer: "Peintures de chasse",
+              successMessage: "Bien joue ! La Grotte de Lascaux est celebre pour ses peintures de chasse.",
+              errorMessage: "Essayez encore, mais l'asteroide a accelere !!",
+              isCompleted: false
+            },
+            {
+              description: "Quel dinosaure herbivore est connu pour sa grande taille ?",
+              target: "paluxysaurus",
+              hint: "Cherchez le plus grand herbivore",
+              successMessage: "Bravo ! Vous avez trouve le Brachiosaurus.",
+              errorMessage: "Ce n'est pas le bon. ",
+              sound: "true",
+              isCompleted: false
+            },
+            {
+              description: "Quel dinosaure etait un quadrupede herbivore connu pour ses trois cornes et sa collerette ?",
+              target: "triceratops",
+              hint: "Cherchez le dinosaure avec trois cornes",
+              successMessage: "Bravo ! Vous avez trouve le Triceratops.",
+              errorMessage: "Ce n'est pas le bon dinosaure. Essayez encore.",
+              sound: "true",
+              isCompleted: false
+            },
+            {
+              type: "question",
+              question: "Comment appelle-t-on l'ere geologique des t-rex ?",
+              choices: ["Jurassique", "Cretace", "Trias"],
+              hint: "C'est l'ere geologique la plus recente",
+              correctAnswer: "Cretace",
+              successMessage: "Exact ! Les t-rex ont vecu pendant l'ere Cretace.",
+              errorMessage: "Ce n'est pas la bonne reponse. L'asteroide s'ecrase encore plus vite !!!",
+              isCompleted: false
+            }
+          ]
+
       };
     },
     
     methods: {
       startMission(index) {
+
       const mission = this.missions[index];
+
+      if(mission.description) {
+        this.StatusMessage = mission.description;
+      } else {
+        this.StatusMessage = "Répondez à la question pour continuer";
+      }
+
+      const soundEl = document.getElementById('mission-sound-' + index);
+      if (soundEl) {
+        soundEl.emit('play-sound');
+      }
+
       if (mission.hasOwnProperty('type') && mission.type === 'question') {
         this.currentQuestion = mission.question;
         console.log(this.currentQuestion);
@@ -102,16 +129,35 @@ export default {
           this.showPannel(this.RetourBase);
         }
       } else {
-        this.showPannel(mission.description);
-      }
-    },
 
-      showPannel(message) {
-         this.panelMessage = message;
-        this.showPanel = true; 
-        setTimeout(() => {
-          this.showPanel = false;
-        }, 9000);
+        this.showPannel(mission.description);
+
+        if (mission.sound) {
+          const soundEl = document.getElementById('mission-sound-' + index);
+          soundEl.emit('play-sound');
+
+        };
+        }
+      },
+      
+
+                showPannel(message) {
+            this.panelMessage = message;
+            this.showPanel = true; 
+            if (this.endgame === true) {
+              return;
+            }
+            this.timeoutRef = setTimeout(() => {
+              this.showPanel = false;
+            }, 9000);
+          },
+
+
+      closepanel() {
+        if(this.endgame === true) {
+          return;
+        }
+        this.showPanel = false;
       },
           
       
@@ -124,15 +170,19 @@ export default {
             this.StatusMessage = 'Commencer votre première mission.';
             setTimeout(() => {
               this.startMission(0);
-            }, 2000);
+            }, 1500);
           }
-        } else if (this.msgindex) {
-          this.StatusMessage = '';
+        } else if (this.msgindex > this.debutMessage.length)
+        {
+          const mission = this.missions[index];
+
+          this.StatusMessage = mission.description;
         }
       },
 
 
       checkMission(target) {
+        if (this.endgame) return;
         if (this.missions[this.currentMissionIndex].target === target) {
           this.completeMission(true);
         } else {
@@ -145,11 +195,11 @@ export default {
       },
 
       checkAnswer(answer) {
+        if (this.endgame) return;
           const mission = this.missions[this.currentMissionIndex];
           if (answer === mission.correctAnswer) {
             this.completeMission(true);
-             this.showQuestionPanel = false; // Fermer le panneau question après la réponse
-
+             this.showQuestionPanel = false; 
           } else {
             const meteoriteEl = document.getElementById('sun-meteorite');
             meteoriteEl.components['meteor-movement'].increaseSpeed();
@@ -159,6 +209,7 @@ export default {
 
 
       completeMission(success) {
+        if (this.endgame) return;
         if (success) {
           this.boxColor = 'green';
           this.showPannel(this.missions[this.currentMissionIndex].successMessage);
@@ -176,8 +227,7 @@ export default {
             setTimeout(() => {
            this.boxColor = 'darkgreen';
 
-              this.showPannel("Félicitations ! Vous avez complété toutes les missions.");
-              //  ajouter d'autres actions pour marquer la fin du jeu, comme afficher un écran de fin, etc.
+              this.showPannel("Félicitations ! Vous avez complété toutes les missions. Mais l'asteroide est toujours en route vers la Terre...");
             }, 5000);
           }
 
@@ -192,27 +242,90 @@ export default {
         }
       },
 
-      displayGameOverMessage(message) {
+      displayGameOverMessage() {
         this.boxColor = 'darkred';
         this.panelMessage = "Game Over";
-        this.showPanel = true; 
-       this.StatusMessage = message;
-  },
+        this.showPanel = true;
+        if (this.timeoutRef) {
+          clearTimeout(this.timeoutRef); 
+          this.timeoutRef = null; 
+        }
+      },
 
+          updateTimeRemaining () {
+      const meteoriteEl = document.getElementById('sun-meteorite');
+      if (meteoriteEl && meteoriteEl.components && 'meteor-movement' in meteoriteEl.components) {
+        const timeRemaining = meteoriteEl.components['meteor-movement'].calculateTimeRemaining();
+        let temppsrestan = Math.max(0, Math.round(timeRemaining)); 
+        this.tempsrestant = `Distance de la l'asteroide : ${temppsrestan} KM restant`;
+
+        if (temppsrestan < 8 && temppsrestan > 1) {
+          const soundEl = document.getElementById('meteor-impact');
+          soundEl.emit('play-sound');
+        }
+
+        // Mise à jour du drapeau basé sur la condition de distance
+        this.shouldShakeCamera = temppsrestan < 100 && temppsrestan > 3;
+        if(this.shouldShakeCamera) {
+          this.applyCameraShake(temppsrestan);
+        }
+      }
+    },
+    
+    
+    applyCameraShake(distance) {
+      const cameraEl = document.getElementById('head');
+      let intensity = Math.max(0.1, (50 - distance) / 50); 
+      let shakeAmount = intensity * 0.018; 
+
+      let shakeCamera = () => {
+        if (this.shouldShakeCamera) {
+          console.log(distance);
+          let randomX = (Math.random() - 0.5) * shakeAmount;
+          let randomY = (Math.random() - 0.5) * shakeAmount;
+          let randomZ = (Math.random() - 0.5) * shakeAmount;
+
+          cameraEl.object3D.position.x += randomX;
+          cameraEl.object3D.position.y += randomY;
+          cameraEl.object3D.position.z += randomZ;
+
+          requestAnimationFrame(() => {
+            cameraEl.object3D.position.x -= randomX;
+            cameraEl.object3D.position.y -= randomY;
+            cameraEl.object3D.position.z -= randomZ;
+
+            shakeCamera();
+          });
+        }
+      };
+      shakeCamera();
     },
 
+    randomPosition: function() {
+  const x = Math.floor(Math.random() * 150) - 80; 
+  const z = Math.floor(Math.random() * 150) - 80; 
+  return `${x} -8 ${z}`;
+},
+
+
+     },
     created() {
       this.$nextTick(() => {
         const meteoriteEl = document.querySelector('#sun-meteorite');
         if (meteoriteEl) {
           meteoriteEl.addEventListener('gameover', (e) => {
+        
+            this.endgame = true;
             this.displayGameOverMessage();
+
           });
         }
       });
     },
     mounted() { 
-      this.startMission(0);
+      setInterval(() => {
+        this.updateTimeRemaining();
+      }, 1000);
     }
   };
   
@@ -222,15 +335,25 @@ export default {
 
 <template>
 
+
 <panneau-txt 
       :text-value="StatusMessage"
       text-color="white"
       boxColor= "black"
-      boxPosition="-0.1 1.5 -1.15" 
+      boxPosition="-0.1 1.5 -1.05" 
       textPosition="0 1.5 -1"
       side="double"
       clickable
       @click="showmessage()"
+    ></panneau-txt>
+
+
+    <panneau-txt 
+      :text-value= "tempsrestant"
+      text-color="white"
+      boxColor= "black"
+      boxPosition="-0.1 1.5 -1.05" 
+      textPosition="0 1.85 -1"
     ></panneau-txt>
 
 <a-entity
@@ -238,11 +361,11 @@ export default {
       bind-rotation="target: #head; convertToLocal: true;">
     <panneau-txt v-if="showPanel"
       :text-value="panelMessage"
-      @close-panel="showPanel = false"
+      @close-panel="closepanel()"
       text-color="white"
       :box-color= boxColor
-      box-position="-0.1 0.5 -1.15" 
-      text-position="0 0.5 -1"
+      box-position="-0.1 0 -0.85" 
+      text-position="0 0 -0.8"
       position="0 0 -1"
       side="double"
       :visible= showPanel
@@ -255,5 +378,14 @@ export default {
                     @answer="checkAnswer">
   </panneau-question>
 
-
+  <a-entity v-if="endgame">
+    <a-entity 
+      v-for="i in 23" 
+      :key="i"
+      gltf-model="#fire-ball" 
+      :position="randomPosition()" 
+      scale="30 30 30" 
+      animation-mixer
+    ></a-entity>
+  </a-entity>
 </template>

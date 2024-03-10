@@ -18,9 +18,9 @@
 <template>
   <div id="onboarding" v-if="showOnboarding">
     <div>
-      <h1>Survivre à une extinction</h1>
+      <h1>Survivre à une extinction de masse</h1>
       <p v-if="!loaded">Chargement...</p>
-      <button v-if="loaded" @click="enterScene()">Démarrer le jeu</button>
+      <button v-if="loaded" @click="enterScene()">Lancer la survie</button>
       <div class="licences">
       <section>
         <h4>Movement modes support</h4>
@@ -29,12 +29,12 @@
             PC déplacements – Clavier pour se déplacer (WASD ou flèches) + Souris pour regarder (Glisser et déposer)
           </li>
           <li>
-            Mobile – 1x Finger touch to go forward + 2x Fingers touch to go
-            backward + Gaze cursor for click
+            Mobile - 1x toucher pour avancer + 2x toucher pour reculer
+            
           </li>
           <li>
-            VR Headset – AR/VR walk + Teleport (Grip for grab and laser for
-            click) + Gaze cursor for click
+            Casque VR – Téléportation marcher + téléportation (Grip pour saisir et laser pour cliquer) + Curseur de regard pour cliquer
+          
           </li>
         </ul>
       </section>

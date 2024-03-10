@@ -5,6 +5,26 @@
   import '../aframe/blink-controls.js';
   import '../aframe/physx-grab.js';
   import '../aframe/visibility.js';
+  import "../aframe/sniperclick.js";
+
+
+  import { onMounted, onUnmounted } from 'vue';
+
+const playSniperSound = () => {
+  const sniperSound = document.querySelector('#sniper-sound');
+      if (sniperSound) {
+        sniperSound.emit('play-shoot');
+      }
+};
+
+onMounted(() => {
+  window.addEventListener('sniper-click', playSniperSound);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('sniper-click', playSniperSound);
+});
+
 </script>
 
 <template>
@@ -30,6 +50,7 @@
           position="0 0 -0.1"
           disable-in-vr="component: raycaster; disableInAR: false;"
           hide-in-vr="hideInAR: false"
+
         ></a-entity>
        
 
@@ -57,10 +78,11 @@
         id="hand-right"
         hand-controls="hand: right"
         laser-controls="hand: right"
-        raycaster="far: 4; objects: [clickable]; showLine: true;"
+        raycaster="far: 400; objects: [clickable]; showLine: true;"
         physx-grab
-        avisibility="false"
-      >
+        visibility="false"
+        emit-sniper-click
+              >
         <a-sphere id="hand-right-collider"
           radius="0.02"
           visible="false"
@@ -68,8 +90,9 @@
         </a-sphere>
 
         <a-entity
-        gltf-model="url(assets/low_poly_sniper.glb)"
-        position="0 0 0" 
+        gltf-model="url(assets/low_poly_sniper2.glb)"
+        position="-0.01 -0.07 0" 
+        rotation="0 0 0"
         scale="0.5 0.5 0.5"
       >
       </a-entity>
